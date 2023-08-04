@@ -3,9 +3,10 @@ import readlineSync from "readline-sync";
 import { promises as fsPromises } from "fs";
 import fs from "fs";
 
-const edit_selector = 'a.styled_button.styled_button_brown.edit-link[data-click="showEdit"]';
+const edit_selector =
+    'a.styled_button.styled_button_brown.edit-link[data-click="showEdit"]';
 const text_field_selector = 'input[name="bio"][data-controller-id="15"]';
-const save_selector = 'button.styled_button i.fa.fa-save';
+const save_selector = "button.styled_button i.fa.fa-save";
 
 async function mane() {
     const browser = await puppeteer.launch({
@@ -22,10 +23,10 @@ async function mane() {
     await check_login(page);
 
     const user_profile_link = await page.evaluate(() => {
-        const user_selector = '.user_toolbar .fa-user';
+        const user_selector = ".user_toolbar .fa-user";
         const element = document.querySelector(user_selector);
-        return element!.parentElement!.getAttribute('href');
-      });
+        return element!.parentElement!.getAttribute("href");
+    });
 
     await page.goto("https://www.fimfiction.net" + user_profile_link, {
         waitUntil: "load",
