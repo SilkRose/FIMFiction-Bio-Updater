@@ -21,7 +21,13 @@ async function mane() {
 
     await check_login(page);
 
-    await page.goto("https://www.fimfiction.net/manage/stories", {
+    const user_profile_link = await page.evaluate(() => {
+        const user_selector = '.user_toolbar .fa-user';
+        const element = document.querySelector(user_selector);
+        return element!.parentElement!.getAttribute('href');
+      });
+
+    await page.goto("https://www.fimfiction.net" + user_profile_link, {
         waitUntil: "load",
     });
 
@@ -35,6 +41,7 @@ async function login(page: any) {
     await page.focus('input[name="password"]');
     await page.type('input[name="password"]', input_password());
     await login_button[0].click();
+    await page.waitForNavigation();
     const success = await page.evaluate(() => {
         return !!!document.querySelector(".error-message");
     });
