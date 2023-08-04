@@ -3,6 +3,10 @@ import readlineSync from "readline-sync";
 import { promises as fsPromises } from "fs";
 import fs from "fs";
 
+const edit_selector = 'a.styled_button.styled_button_brown.edit-link[data-click="showEdit"]';
+const text_field_selector = 'input[name="bio"][data-controller-id="15"]';
+const save_selector = 'button.styled_button i.fa.fa-save';
+
 async function mane() {
     const browser = await puppeteer.launch({
         headless: "new",
