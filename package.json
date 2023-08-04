@@ -1,0 +1,34 @@
+{
+  "name": "fimiction-bio-updater",
+  "version": "0.0.1",
+  "description": "FIMFiction Bio Updater",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@7.28.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SilkRose/FIMFiction-Bio-Updater.git"
+  },
+  "contributors": [
+    "Silk Rose",
+    "Meadowsys"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SilkRose/FIMFiction-Bio-Updater/issues"
+  },
+  "homepage": "https://github.com/SilkRose/FIMFiction-Bio-Updater#readme",
+  "dependencies": {
+    "puppeteer": "^20.9.0",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "@total-typescript/ts-reset": "^0.3.7",
+    "@types/node": "^18.14.6",
+    "@types/readline-sync": "^1.4.4",
+    "typescript": "^4.9.5"
+  }
+}
