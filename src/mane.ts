@@ -31,8 +31,7 @@ async function mane() {
 	await page.goto("https://www.fimfiction.net" + user_profile_link, {
 		waitUntil: "load",
 	});
-	const edit = await page.waitForSelector(edit_selector);
-	await edit!.click();
+	await page.evaluate("UserBioController.prototype.showEdit();")
 	await page.focus(text_field_selector);
 	await page.keyboard.down("Control");
 	await page.keyboard.press("KeyA");
@@ -40,16 +39,7 @@ async function mane() {
 	await page.keyboard.press("Backspace");
 	await page.type(text_field_selector, "I love Pinkie Pie!");
 	await page.click(save_selector);
-	const user = await page.waitForSelector(user_selector);
-	const user_box = await user!.boundingBox();
-	let x = user_box!.x + user_box!.width / 2;
-	let y = user_box!.y + user_box!.height / 2;
-	await page.mouse.move(x, y);
-	await page.mouse.move(x, y + 300, { steps: 100 });
-	await page.mouse.click(
-		x,
-		y + 300
-	);
+	await page.evaluate("IndexController.prototype.logout();");
 	await page.waitForNavigation();
 	await browser.close();
 }
