@@ -1,12 +1,13 @@
 import puppeteer from "puppeteer";
 import readlineSync from "readline-sync";
 
-const user_selector = ".user_toolbar .fa-user";
+const name_selector = 'input[name="username"]';
+const password_selector = 'input[name="password"]';
+const login_selector = "button.styled_button i.fa.fa-sign-in";
 const edit_selector =
 	'a.styled_button.styled_button_brown.edit-link[data-click="showEdit"]';
 const text_field_selector = 'input[name="bio"]';
 const save_selector = "button.styled_button i.fa.fa-save";
-const logout_selector = ".user_toolbar .fa-sign-out";
 
 async function mane() {
 	const browser = await puppeteer.launch({
@@ -16,22 +17,18 @@ async function mane() {
 	await page.goto("https://www.fimfiction.net/", {
 		waitUntil: "load",
 	});
-	const login_button = await page.$x("//button[contains(., 'Log In')]");
-	await page.focus('input[name="username"]');
-	await page.type('input[name="username"]', input_username());
-	await page.focus('input[name="password"]');
-	await page.type('input[name="password"]', input_password());
-	await (login_button[0] as any).click();
+	await page.type(name_selector, input_username());
+	await page.type(password_selector, input_password());
+	await page.click(login_selector);
 	await page.waitForNavigation();
 	const user_profile_link = await page.evaluate(() => {
-		const user_selector = ".user_toolbar .fa-user";
-		const element = document.querySelector(user_selector);
+		const element = document.querySelector(".user_toolbar .fa-user");
 		return element!.parentElement!.getAttribute("href");
 	});
 	await page.goto("https://www.fimfiction.net" + user_profile_link, {
 		waitUntil: "load",
 	});
-	await page.evaluate("UserBioController.prototype.showEdit();")
+	await page.click(edit_selector);
 	await page.focus(text_field_selector);
 	await page.keyboard.down("Control");
 	await page.keyboard.press("KeyA");
