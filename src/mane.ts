@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import readlineSync from "readline-sync";
+import "@total-typescript/ts-reset";
 
 const name_selector = 'input[name="username"]';
 const password_selector = 'input[name="password"]';
@@ -11,7 +12,7 @@ const save_selector = "button.styled_button i.fa.fa-save";
 
 async function mane() {
 	const browser = await puppeteer.launch({
-		headless: false,
+		headless: "shell",
 	});
 	const page = await browser.newPage();
 	await page.goto("https://www.fimfiction.net/", {
