@@ -1,27 +1,110 @@
+import z from "zod";
 import puppeteer from "puppeteer";
-import readlineSync from "readline-sync";
+import { promises as fs } from "fs";
 import "@total-typescript/ts-reset";
+import { execSync } from "child_process";
 
-const name_selector = 'input[name="username"]';
-const password_selector = 'input[name="password"]';
-const login_selector = "button.styled_button i.fa.fa-sign-in";
+// schema for the cookie.
+const cookie_schema = z.array(
+	z.object({
+		domain: z.string(),
+		expires: z.number(),
+		httpOnly: z.boolean(),
+		name: z.string(),
+		partitionKey: z.string().optional(),
+		partitionKeyOpaque: z.boolean().optional(),
+		path: z.string(),
+		priority: z.enum(["Low", "Medium", "High"]).optional(),
+		sameParty: z.boolean().optional(),
+		sameSite: z.enum(["Strict", "Lax", "None"]).optional(),
+		secure: z.boolean(),
+		session: z.boolean(),
+		size: z.number(),
+		sourceScheme: z.enum(["Unset", "NonSecure", "Secure"]).optional(),
+		value: z.string(),
+	})
+);
+
+// schema for the recommendations file.
+const recommendation_schema = z.array(
+	z.object({
+		"author-name": z.string(),
+		"author-id": z.number(),
+		"best-pony": z.string(),
+		recommendations: z.array(
+			z.object({
+				"story-name": z.string(),
+				"story-id": z.number(),
+			})
+		),
+	})
+);
+
+// selectors the browser automation.
 const edit_selector =
 	'a.styled_button.styled_button_brown.edit-link[data-click="showEdit"]';
 const text_field_selector = 'input[name="bio"]';
 const save_selector = "button.styled_button i.fa.fa-save";
 
 async function mane() {
+	// contructing the bio.
+	const recommendations = recommendation_schema.parse(
+		JSON.parse(await fs.readFile(process.argv[2], "utf-8"))
+	);
+	const author =
+		recommendations[Math.floor(Math.random() * recommendations.length)];
+	const story =
+		author.recommendations[
+			Math.floor(Math.random() * author.recommendations.length)
+		];
+	const max_lenght = 200;
+	const bio = `Go read [url=/story/${story["story-id"]}]${story["story-name"]}[/url], by [url=/user/${author["author-id"]}/]${author["author-name"]}[/url] | ${author["best-pony"]} is best pony! | Bio updates daily!`;
+
+	// checking the cookie expirery date.
+	const cookies = cookie_schema.parse(
+		JSON.parse(await fs.readFile(process.argv[3], "utf-8"))
+	);
+	const time = Date.now() / 1000;
+	const expiry_date = cookies
+		.filter((c) => c.name === "session_token")
+		.map((c) => c.expires)[0];
+	// check to see if the cookie expires within a month.
+	if (time > expiry_date - 2592000) {
+		execute_command(
+			`notify-send "Expiring Cookie!" "The cookie provided for FIMFiction Bio will expire on ${new Date(
+				expiry_date * 1000
+			)}"`
+		);
+		console.warn(
+			`The cookie provided for FIMFiction Bio will expire on ${new Date(
+				expiry_date * 1000
+			)}`
+		);
+	} else if (time > expiry_date) {
+		execute_command(
+			`notify-send -u critical "Expired Cookie!" "The cookie provided for FIMFiction Bio has expired on ${new Date(
+				expiry_date * 1000
+			)}"`
+		);
+		console.error(
+			new Error(
+				`The cookie provided for FIMFiction Bio has expired on ${new Date(
+					expiry_date * 1000
+				)}`
+			)
+		);
+		process.exit(1);
+	}
+
+	// updating the bio.
 	const browser = await puppeteer.launch({
 		headless: "shell",
 	});
 	const page = await browser.newPage();
+	await page.setCookie(...cookies);
 	await page.goto("https://www.fimfiction.net/", {
 		waitUntil: "load",
 	});
-	await page.type(name_selector, input_username());
-	await page.type(password_selector, input_password());
-	await page.click(login_selector);
-	await page.waitForNavigation();
 	const user_profile_link = await page.evaluate(() => {
 		const element = document.querySelector(".user_toolbar .fa-user");
 		return element!.parentElement!.getAttribute("href");
@@ -35,21 +118,17 @@ async function mane() {
 	await page.keyboard.press("KeyA");
 	await page.keyboard.up("Control");
 	await page.keyboard.press("Backspace");
-	await page.type(text_field_selector, "I love Pinkie Pie!");
+	await page.type(text_field_selector, bio);
 	await page.click(save_selector);
-	await page.evaluate("IndexController.prototype.logout();");
-	await page.waitForNavigation();
 	await browser.close();
 }
 
-function input_username() {
-	return readlineSync.question("Enter your username or email: ");
-}
-
-function input_password() {
-	return readlineSync.question("Enter your password (hidden input): ", {
-		hideEchoBack: true,
-	});
-}
-
 mane();
+
+function execute_command(command: string) {
+	try {
+		execSync(command);
+	} catch (err) {
+		throw new Error(`Failed to execute command: ${command}`);
+	}
+}
