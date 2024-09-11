@@ -55,7 +55,7 @@ async function mane() {
 		recommendations[Math.floor(Math.random() * recommendations.length)];
 	const story =
 		author.recommendations[
-			Math.floor(Math.random() * author.recommendations.length)
+		Math.floor(Math.random() * author.recommendations.length)
 		];
 	const max_lenght = 200;
 	const bio = `Go read [url=/story/${story["story-id"]}]${story["story-name"]}[/url], by [url=/user/${author["author-id"]}/]${author["author-name"]}[/url] | ${author["best-pony"]} is best pony! | Bio updates daily!`;
@@ -101,6 +101,12 @@ async function mane() {
 		headless: "shell",
 	});
 	const page = await browser.newPage();
+	await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0');
+	await page.evaluateOnNewDocument(() => {
+		Object.defineProperty(navigator, 'webdriver', {
+			get: () => false,
+		});
+	});
 	await page.setCookie(...cookies);
 	await page.goto("https://www.fimfiction.net/", {
 		waitUntil: "load",
