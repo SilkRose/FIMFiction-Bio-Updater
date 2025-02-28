@@ -220,5 +220,16 @@
 				"story-id": 535353
 			}
 		]
+	},
+	{
+		"author-name": "Damaged",
+		"author-id": 216165,
+		"best-pony": "Derpy",
+		"recommendations": [
+			{
+				"story-name": "The Great and Powerful Wizard Trixie Lulamoon!",
+				"story-id": 476884
+			}
+		]
 	}
 ]
