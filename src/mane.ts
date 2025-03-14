@@ -66,8 +66,8 @@ async function mane() {
 	);
 	const time = Date.now() / 1000;
 	const expiry_date = cookies
-		.filter((c) => c.name === "session_token")
-		.map((c) => c.expires)[0];
+		.filter((c: { name: string; }) => c.name === "session_token")
+		.map((c: { expires: any; }) => c.expires)[0];
 	// check to see if the cookie expires within a month.
 	if (time > expiry_date - 2592000) {
 		execute_command(
